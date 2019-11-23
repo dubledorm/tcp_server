@@ -3,26 +3,27 @@ module TcpServer
     def initialize(port)
       puts("initialize port = #{port}")
       @port = port
-      Thread.current['stop_flag'] = false
       puts("initialize finish port = #{port}")
     end
 
-    def call
+    def call(pair_tcp_server)
       server = TCPServer.new(port)
       begin
         loop do
-          Thread.current['socket'] = wait_connect(server)
-          next if Thread.current['socket'].nil?
+          @socket = wait_connect(server)
+          next if @socket.nil?
 
-          copy_stream(Thread.current['socket'])
-          Thread.current['socket']&.close
+          copy_stream(pair_tcp_server)
+          @socket&.close
           server.close
         end
       rescue
-        Thread.current['socket']&.close
+        @socket&.close
         server.close
       end
     end
+
+    attr_accessor :socket
 
     private
 
@@ -33,20 +34,15 @@ module TcpServer
       server.accept
     end
 
-    def copy_stream(socket)
+    def copy_stream(pair_tcp_server)
       puts('copy_stream' + @port.to_s)
-      # while Thread.current['next_thread']['socket'].nil? && !socket.closed?
-      #   puts('wait for next_thread' + @port.to_s)
-      #   sleep(1)
-      # end
       begin
       loop do
-        one_byte = socket.getc
+        one_byte = @socket.getc
         if one_byte.nil?
- #         Thread.current['next_thread']['socket'].close
           break
         end
-        Thread.current['next_thread']['socket'].putc(one_byte) unless Thread.current['next_thread']['socket'].nil?
+        pair_tcp_server.socket&.putc(one_byte)
         puts("->#{one_byte}")
       end
       rescue RuntimeError

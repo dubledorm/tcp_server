@@ -2,9 +2,12 @@ module TcpServer
   class TcpServerControl
     def self.start(one_port, two_port)
       $threads = []
+      tcp_server1 = TcpServer::SimpleTcpServer.new(one_port)
+      tcp_server2 = TcpServer::SimpleTcpServer.new(two_port)
+
       $threads[0] = Thread.new do
         Thread.handle_interrupt(Exception => :immediate) {
-          TcpServer::SimpleTcpServer.new(one_port).call
+          tcp_server1.call(tcp_server2)
         }
         puts('1111111111111111111111111 3001')
         Thread.handle_interrupt(Exception => :immediate) {
@@ -14,7 +17,7 @@ module TcpServer
 
       $threads[1] = Thread.new do
         Thread.handle_interrupt(Exception => :immediate) {
-          TcpServer::SimpleTcpServer.new(two_port).call
+          tcp_server2.call(tcp_server1)
         }
         puts('1111111111111111111111111 3002')
         stop_pair_server($threads[0])
