@@ -1,29 +1,23 @@
-module TcpServer
-  class TcpServerControl
-    def self.start(one_port, two_port)
-      @threads = []
-      tcp_server1 = TcpServer::SimpleTcpServer.new(one_port)
-      tcp_server2 = TcpServer::SimpleTcpServer.new(two_port)
+# frozen_string_literal: true
 
-      @threads[0] = Thread.new do
-        Thread.handle_interrupt(Exception => :immediate) do
-          tcp_server1.call(tcp_server2)
-        end
-        Thread.handle_interrupt(Exception => :never) do
-          Thread.current.report_on_exception = false
-          Rails.logger.info('stop TcpServer on port ' + one_port.to_s)
-          stop_pair_server(@threads[1])
-        end
+module TcpServer
+  # TcpServerControl. Class for start and stop the pair of SimpleTcpServers
+  class TcpServerControl
+    def initialize
+      @threads = []
+      @tcp_servers = []
+    end
+
+    def start(ports)
+      @ports = ports
+      [0, 1].each do |number|
+        @tcp_servers[number] = TcpServer::SimpleTcpServer.new(@ports[number])
       end
 
-      @threads[1] = Thread.new do
-        Thread.handle_interrupt(Exception => :immediate) do
-          tcp_server2.call(tcp_server1)
-        end
-        Thread.handle_interrupt(Exception => :never) do
-          Thread.current.report_on_exception = false
-          Rails.logger.info('stop TcpServer on port ' + two_port.to_s)
-          stop_pair_server(@threads[0])
+      [0, 1].each do |number|
+        @threads[number] = Thread.new do
+          execute(number)
+          stop_pair_server(number)
         end
       end
     end
@@ -35,14 +29,29 @@ module TcpServer
       sleep(1)
     end
 
-    def self.stop_pair_server(pair_thread)
-      return if pair_thread.nil?
-      return unless pair_thread.alive?
-      pair_thread.raise('restart')
+    def pair_alive?
+      @threads[0].alive? || @threads[1].alive?
     end
 
-    def self.pair_alive?
-      @threads[0].alive? || @threads[1].alive?
+    private
+
+    def stop_pair_server(number)
+      Thread.handle_interrupt(Exception => :never) do
+        Thread.current.report_on_exception = false
+        Rails.logger.info('stop TcpServer on port ' + @ports[number].to_s)
+        pair_thread = @threads[number.zero? ? 1 : 0]
+        return if pair_thread.nil?
+
+        return unless pair_thread.alive?
+
+        pair_thread.raise('restart')
+      end
+    end
+
+    def execute(number)
+      Thread.handle_interrupt(Exception => :immediate) do
+        @tcp_servers[number].call(@tcp_servers[number.zero? ? 1 : 0])
+      end
     end
   end
 end

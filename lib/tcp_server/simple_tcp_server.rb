@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module TcpServer
+  # TcpServer. It reads byte from socket and sends the bytes to pair tcp_server
   class SimpleTcpServer
     def initialize(port)
       @port = port
@@ -12,12 +15,10 @@ module TcpServer
           next if @socket.nil?
 
           copy_stream(pair_tcp_server)
-          @socket&.close
-          server.close
+          all_close(server)
         end
       rescue
-        @socket&.close
-        server.close
+        all_close(server)
       end
     end
 
@@ -38,17 +39,32 @@ module TcpServer
       Rails.logger.info('copy_stream' + @port.to_s)
       begin
       loop do
-        one_byte = @socket.getc
-        if one_byte.nil?
-          Rails.logger.info('client disconnected from ' + @port.to_s)
-          break
-        end
-        pair_tcp_server.socket&.putc(one_byte)
-        Rails.logger.info("->#{one_byte}")
+        one_byte = socket_read
+        break if one_byte.nil?
+
+        socket_write(pair_tcp_server, one_byte)
       end
       rescue RuntimeError
         raise
       end
+    end
+
+    def socket_read
+      one_byte = @socket.getc
+      if one_byte.nil?
+        Rails.logger.info('client disconnected from ' + @port.to_s)
+      end
+      one_byte
+    end
+
+    def socket_write(pair_tcp_server, one_byte)
+      pair_tcp_server.socket&.putc(one_byte)
+      Rails.logger.info("->#{one_byte}")
+    end
+
+    def all_close(server)
+      @socket&.close
+      server.close
     end
   end
 end
