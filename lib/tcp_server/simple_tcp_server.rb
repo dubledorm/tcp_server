@@ -1,9 +1,7 @@
 module TcpServer
   class SimpleTcpServer
     def initialize(port)
-      puts("initialize port = #{port}")
       @port = port
-      puts("initialize finish port = #{port}")
     end
 
     def call(pair_tcp_server)
@@ -30,23 +28,25 @@ module TcpServer
     attr_accessor :port
 
     def wait_connect(server)
-      puts('wait_connect ' + @port.to_s)
-      server.accept
+      Rails.logger.info('wait_connect ' + @port.to_s)
+      socket = server.accept
+      Rails.logger.info('client connected on ' + @port.to_s)
+      socket
     end
 
     def copy_stream(pair_tcp_server)
-      puts('copy_stream' + @port.to_s)
+      Rails.logger.info('copy_stream' + @port.to_s)
       begin
       loop do
         one_byte = @socket.getc
         if one_byte.nil?
+          Rails.logger.info('client disconnected from ' + @port.to_s)
           break
         end
         pair_tcp_server.socket&.putc(one_byte)
-        puts("->#{one_byte}")
+        Rails.logger.info("->#{one_byte}")
       end
       rescue RuntimeError
-        puts('RunTime Error')
         raise
       end
     end

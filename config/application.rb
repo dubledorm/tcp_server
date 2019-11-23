@@ -34,5 +34,10 @@ module TcpServer
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
     config.autoload_paths += %W(#{config.root}/lib)
+
+    config.logger = ActiveSupport::Logger.new("log/#{Rails.env}.log")
+    config.logger.formatter = proc do |severity, datetime, progname, msg|
+      "#{datetime}, #{severity}: #{msg}\n"
+    end
   end
 end

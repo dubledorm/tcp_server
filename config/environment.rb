@@ -6,7 +6,7 @@ Rails.application.initialize!
 Thread.new do
   loop do
     TcpServer::TcpServerControl.start(3001, 3002)
-    while $threads[0].alive? && $threads[1].alive? do
+    while TcpServer::TcpServerControl.pair_alive? do
       sleep(1)
     end
   end
