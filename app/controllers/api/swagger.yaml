@@ -1,0 +1,90 @@
+swagger: "2.0"
+info:
+  description: "This is simple retranslator. It retranslates tcp stream from one tcp port to another. It has a control by HTTP API"
+  version: "1.0.0"
+  title: "API for control the retranslator"
+  contact:
+    email: "dubledorm@gmail.com"
+host: "127.0.0.1:3000"
+basePath: "/api"
+tags:
+  - name: "restart"
+    description: "Restart the service"
+schemes:
+  - "http"
+paths:
+  /health_check:
+    get:
+      tags:
+        - "health_check"
+      summary: "Return the status of all process"
+      description: "Return common status and also information about each thread"
+      operationId: "health_check"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Health_check"
+  /restart:
+    get:
+      tags:
+        - "restart"
+      summary: "Restart the service"
+      description: "Without any parameters"
+      operationId: "restart"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Restart"
+definitions:
+  Thread:
+    type: "object"
+    properties:
+      port:
+        type: integer
+      status:
+        type: string
+  Threads:
+    type: "array"
+    xml:
+      name: "thread"
+      wrapped: true
+    items:
+      $ref: "#/definitions/Thread"
+  Health_check:
+    type: "object"
+    properties:
+      status:
+        type: string
+        description: "Common status the system"
+        enum:
+          - "Ok"
+          - "Error"
+      message:
+        type: string
+        description: "if status is error it give detailed description of reasons"
+      thread_qu:
+        type: integer
+        description: "number of running threads"
+        format: "int32"
+      threads:
+        type: "array"
+        xml:
+          name: "threads"
+          wrapped: true
+        items:
+          $ref: "#/definitions/Threads"
+    xml:
+      name: "Healthcheck"
+  Restart:
+    type: "object"
+    properties:
+      message:
+        type: string
+    xml:
+      name: "Restart"

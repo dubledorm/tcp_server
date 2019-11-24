@@ -5,6 +5,7 @@ module TcpServer
   class SimpleTcpServer
     def initialize(port)
       @port = port
+      @status = 'Created'
     end
 
     def call(pair_tcp_server)
@@ -22,13 +23,12 @@ module TcpServer
       end
     end
 
-    attr_accessor :socket
+    attr_reader :socket, :port, :status
 
     private
 
-    attr_accessor :port
-
     def wait_connect(server)
+      @status = 'Wait connect'
       Rails.logger.info('wait_connect ' + @port.to_s)
       socket = server.accept
       Rails.logger.info('client connected on ' + @port.to_s)
@@ -36,6 +36,7 @@ module TcpServer
     end
 
     def copy_stream(pair_tcp_server)
+      @status = 'Copy stream'
       Rails.logger.info('copy_stream' + @port.to_s)
       begin
       loop do
@@ -63,8 +64,10 @@ module TcpServer
     end
 
     def all_close(server)
+      @status = 'Closing'
       @socket&.close
       server.close
+      @status = 'Closed'
     end
   end
 end

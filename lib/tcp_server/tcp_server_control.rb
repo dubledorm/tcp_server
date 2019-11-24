@@ -9,6 +9,33 @@ module TcpServer
     end
 
     def start(ports)
+      Thread.new do
+        loop do
+          start_pair(ports)
+          sleep(1) while pair_alive?
+        end
+      end
+    end
+
+    def stop
+      @threads.each do |thread|
+        thread.raise('restart')
+      end
+      sleep(1)
+    end
+
+    def status
+      result = []
+      @tcp_servers.each do |tcp_server|
+        result << { port: tcp_server.port,
+                    status: tcp_server.status }
+      end
+      result
+    end
+
+    private
+
+    def start_pair(ports)
       @ports = ports
       [0, 1].each do |number|
         @tcp_servers[number] = TcpServer::SimpleTcpServer.new(@ports[number])
@@ -22,19 +49,6 @@ module TcpServer
       end
     end
 
-    def stop
-      @threads.each do |thread|
-        thread.raise('restart')
-      end
-      sleep(1)
-    end
-
-    def pair_alive?
-      @threads[0].alive? || @threads[1].alive?
-    end
-
-    private
-
     def stop_pair_server(number)
       Thread.handle_interrupt(Exception => :never) do
         Thread.current.report_on_exception = false
@@ -46,6 +60,10 @@ module TcpServer
 
         pair_thread.raise('restart')
       end
+    end
+
+    def pair_alive?
+      @threads[0].alive? || @threads[1].alive?
     end
 
     def execute(number)
