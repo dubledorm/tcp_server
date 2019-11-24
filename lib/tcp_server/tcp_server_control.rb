@@ -22,7 +22,7 @@ module TcpServer
       end
     end
 
-    def self.stop
+    def stop
       @threads.each do |thread|
         thread.raise('restart')
       end

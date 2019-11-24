@@ -1,7 +1,7 @@
 class Api::ApiController < ApplicationController
 
   def restart
-    TcpServer::TcpServerControl.stop
+    $tcp_server_control.stop
     render json: 'Ok'
   end
 end
