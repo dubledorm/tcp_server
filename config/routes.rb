@@ -5,4 +5,8 @@ Rails.application.routes.draw do
     get 'health_check', to: 'api#health_check'
     get 'restart', to: 'api#restart'
   end
+
+  namespace :test do
+    post 'health_check', to: 'api#test_health_check'
+  end
 end
