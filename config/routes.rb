@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   namespace :api do
     get 'health_check', to: 'api#health_check'
     get 'restart', to: 'api#restart'
+    get 'start_pair', to: 'api#start_pair'
   end
 
   namespace :test do
