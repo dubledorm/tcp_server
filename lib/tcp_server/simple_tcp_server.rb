@@ -3,29 +3,33 @@
 module TcpServer
   # TcpServer. It reads byte from socket and sends the bytes to pair tcp_server
   class SimpleTcpServer
-    def initialize(port)
+    def initialize(port, tcp_server_control)
       @port = port
       @status = 'Created'
+      @tcp_server_control = tcp_server_control
     end
 
-    def call(pair_tcp_server)
+    def call
       server = TCPServer.new(port)
       begin
         loop do
           @socket = wait_connect(server)
           next if @socket.nil?
 
-          copy_stream(pair_tcp_server)
-          all_close(server)
+          copy_stream
+          @socket&.close
         end
       rescue
         all_close(server)
+        server.close
       end
     end
 
     attr_reader :socket, :port, :status
 
     private
+
+    attr_accessor :tcp_server_control
 
     def wait_connect(server)
       @status = 'Wait connect'
@@ -35,7 +39,7 @@ module TcpServer
       socket
     end
 
-    def copy_stream(pair_tcp_server)
+    def copy_stream
       @status = 'Copy stream'
       Rails.logger.info('copy_stream' + @port.to_s)
       begin
@@ -43,7 +47,7 @@ module TcpServer
         one_byte = socket_read
         break if one_byte.nil?
 
-        socket_write(pair_tcp_server, one_byte)
+        write_to_pair(one_byte)
       end
       rescue RuntimeError
         raise
@@ -58,8 +62,8 @@ module TcpServer
       one_byte
     end
 
-    def socket_write(pair_tcp_server, one_byte)
-      pair_tcp_server.socket&.putc(one_byte)
+    def write_to_pair(one_byte)
+      @tcp_server_control.get_pair_socket(@port)&.putc(one_byte)
       Rails.logger.info("->#{one_byte}")
     end
 

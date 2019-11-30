@@ -7,5 +7,5 @@ Rails.application.initialize!
 pairs = JSON.parse(ENV['PAIRS_OF_SERVERS'], symbolize_names: true)
 Rails.logger.info("Got configuration: #{pairs}")
 
-$tcp_server_control = TcpServer::TcpServerControl.new
-$tcp_server_control.start(pairs[:pair])
+$tcp_server_control = TcpServer::TcpServerControl.new(pairs[:pair])
+$tcp_server_control.start
