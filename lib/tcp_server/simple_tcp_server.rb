@@ -45,7 +45,7 @@ module TcpServer
       begin
       loop do
         one_byte = socket_read
-        break if one_byte.nil?
+        break if one_byte.empty?
 
         write_to_pair(one_byte)
       end
@@ -55,15 +55,15 @@ module TcpServer
     end
 
     def socket_read
-      one_byte = @socket.getc
-      if one_byte.nil?
+      one_byte = @socket.recv(16)
+      if one_byte.empty?
         Rails.logger.info('client disconnected from ' + @port.to_s)
       end
       one_byte
     end
 
     def write_to_pair(one_byte)
-      @tcp_server_control.get_pair_socket(@port)&.putc(one_byte)
+      @tcp_server_control.get_pair_socket(@port)&.write(one_byte)
       Rails.logger.info("->#{one_byte}")
     end
 
