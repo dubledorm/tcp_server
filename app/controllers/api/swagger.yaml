@@ -25,21 +25,21 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/Health_check"
-  /start_pair:
-    get:
+  /stop_pair:
+    put:
       tags:
-        - "start_pair"
-      summary: "Запускает новую пару связанных портов"
+        - "stop_pair"
+      summary: "Останавливает пару связанных портов"
       parameters:
         - name: "port1"
           in: "query"
-          description: "Порт для связи и передачи лога"
+          description: "Порт для связи"
           required: true
           type: "integer"
           format: "int64"
         - name: "port2"
           in: "query"
-          description: "Порт для связи и передачи лога"
+          description: "Порт для связи"
           required: true
           type: "integer"
           format: "int64"
@@ -51,23 +51,33 @@ paths:
           schema:
             type: "string"
             example: "Port already in use"
-  /restart:
-    get:
+
+  /start_pair:
+    put:
       tags:
-        - "restart"
-      summary: "Restart the service"
-      description: "Without any parameters"
-      operationId: "restart"
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
+        - "start_pair"
+      summary: "Запускает новую пару связанных портов"
+      parameters:
+        - name: "port1"
+          in: "query"
+          description: "Порт для связи 1"
+          required: true
+          type: "integer"
+          format: "int64"
+        - name: "port2"
+          in: "query"
+          description: "Порт для связи 2"
+          required: true
+          type: "integer"
+          format: "int64"
       responses:
         200:
           description: "successful operation"
+        400:
+          description: "Invalid parameters"
           schema:
-            $ref: "#/definitions/Restart"
-
+            type: "string"
+            example: "Port already in use"
 definitions:
   Thread:
     type: "object"

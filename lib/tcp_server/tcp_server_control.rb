@@ -11,7 +11,7 @@ module TcpServer
 
     def start
       Thread.new do
-        loop do
+        Rails.application.executor.wrap do
           start_pair(@ports)
           sleep(1) while pair_alive?
         end
@@ -20,9 +20,9 @@ module TcpServer
 
     def stop
       @threads.each do |thread|
-        thread.raise('restart')
+        thread.raise('stop')
       end
-      sleep(1)
+      sleep(1) while pair_alive?
     end
 
     def status
@@ -34,6 +34,7 @@ module TcpServer
       result
     end
 
+    # Для переданного порта находит пару у связанного с ним сервера
     def get_pair_socket(port)
       [0, 1].each do |number|
         if @ports[number] != port
@@ -44,9 +45,17 @@ module TcpServer
       nil
     end
 
-    private
+    def has_pair?(port1, port2)
+      ports.include?(port1) && ports.include?(port2)
+    end
+
+    def has_port?(port)
+      ports.include?(port)
+    end
 
     attr_accessor :ports
+
+    private
 
     def start_pair(ports)
       @ports = ports
