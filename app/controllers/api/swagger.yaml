@@ -109,15 +109,31 @@ definitions:
         type: integer
         description: "number of running threads"
         format: "int32"
+      tcp_server_controls_qu:
+        type: integer
+        description: "Количество запущенных пар портов"
+        format: "int32"
+      pairs:
+        type: "array"
+        xml:
+          name: "pairs"
+          wrapped: true
+        items:
+          $ref: "#/definitions/Pairs"
+    xml:
+      name: "Healthcheck"
+  Pairs:
+    type: "object"
+    properties:
+      mode:
+        type: string
       threads:
         type: "array"
         xml:
           name: "threads"
           wrapped: true
         items:
-          $ref: "#/definitions/Threads"
-    xml:
-      name: "Healthcheck"
+          $ref: "#/definitions/Thread"
   Restart:
     type: "object"
     properties:
