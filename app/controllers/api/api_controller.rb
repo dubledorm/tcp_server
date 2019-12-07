@@ -5,7 +5,7 @@ class Api::ApiController < ApplicationController
   include ServerControlTools
 
   def stop_pair
-    tcp_server_control = find_pair(params.require(:port1).to_i, params.require(:port2).to_i)
+    tcp_server_control = find_pair(params.require(:port1), params.require(:port2))
 
     if tcp_server_control.nil?
       render json: { message: 'Don`t find the pair of ports' }, status: 400
@@ -25,7 +25,7 @@ class Api::ApiController < ApplicationController
       return
     end
 
-    start_server(ports)
+    start_tcp_server(ports, :smart)
     render json: { message: 'Ok' }, status: 200
   end
 
@@ -34,10 +34,10 @@ class Api::ApiController < ApplicationController
                  message: '',
                  threads_qu: Thread.list.count,
                  tcp_server_controls_qu: $tcp_server_controls.count,
-                 threads: [] }
+                 pairs: [] }
 
     $tcp_server_controls.each do |tcp_server_control|
-      response[:threads] << tcp_server_control.status
+      response[:pairs] << tcp_server_control.status
     end
 
     render json: response, status: 200

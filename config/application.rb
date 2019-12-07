@@ -29,5 +29,9 @@ module TcpServer
     config.logger.formatter = proc do |severity, datetime, progname, msg|
       "#{datetime}, #{severity}: #{msg}\n"
     end
+
+    config.after_initialize do
+      init_by_env_variable
+    end
   end
 end

@@ -9,19 +9,27 @@ module TcpServer
       @tcp_server_control = tcp_server_control
     end
 
-    def call
-      server = TCPServer.new(port)
-      begin
-        loop do
+    def call(mode = :smart)
+      server = TCPServer.new(@port)
+      signal = :nothing
+      loop do
+        begin
           @socket = wait_connect(server)
-          next if @socket.nil?
+          raise if @socket.nil?
 
           copy_stream
-          @socket&.close
+          stop_pair_server if mode == :dumb
+        rescue Exception => e
+          Rails.logger.info('Exception.class = ' + e.class.name + 'Message = ' + e.message)
+          signal = :stop if e.message == 'stop'
         end
-      rescue
-        all_close(server)
-        server.close
+
+        @socket&.close
+        @socket = nil
+        if signal == :stop
+          server_close(server)
+          return
+        end
       end
     end
 
@@ -67,11 +75,25 @@ module TcpServer
       Rails.logger.info("->#{one_byte}")
     end
 
-    def all_close(server)
+    def server_close(server)
       @status = 'Closing'
-      @socket&.close
+      Rails.logger.info('closed server on port ' + port.to_s)
       server.close
       @status = 'Closed'
+    end
+
+    # Остановить парный сервер
+    def stop_pair_server
+      Thread.handle_interrupt(Exception => :never) do
+        Thread.current.report_on_exception = false
+        Rails.logger.info('stop TcpServer on port ')
+        pair_thread = @tcp_server_control.get_pair_thread(@port)
+        return if pair_thread.nil?
+
+        return unless pair_thread.alive?
+
+        pair_thread.raise('restart')
+      end
     end
   end
 end
