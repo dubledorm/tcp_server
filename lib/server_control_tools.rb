@@ -6,7 +6,7 @@ module ServerControlTools
 
   def find_used_port(ports)
     [0, 1].each do |i|
-      if use_port?(ports[i])
+      if use_port?(ports[i].to_i)
         return ports[i]
       end
     end

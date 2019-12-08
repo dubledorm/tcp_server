@@ -7,10 +7,7 @@ class Api::ApiController < ApplicationController
   def stop_pair
     tcp_server_control = find_pair(params.require(:port1), params.require(:port2))
 
-    if tcp_server_control.nil?
-      render json: { message: 'Don`t find the pair of ports' }, status: 400
-      return
-    end
+    raise ActionController::BadRequest.new('Don`t find the pair of ports') if tcp_server_control.nil?
 
     tcp_server_control.stop
     $tcp_server_controls.delete(tcp_server_control)
@@ -20,10 +17,7 @@ class Api::ApiController < ApplicationController
   def start_pair
     ports = [params.require(:port1), params.require(:port2)]
     port = find_used_port(ports)
-    unless port.nil?
-      render json: { message: "The port number #{port} already used" }, status: 400
-      return
-    end
+    raise ActionController::BadRequest.new("The port number #{port} already used") unless port.nil?
 
     start_tcp_server(ports, :smart)
     render json: { message: 'Ok' }, status: 200
@@ -42,10 +36,4 @@ class Api::ApiController < ApplicationController
 
     render json: response, status: 200
   end
-
-  private
-
-    def use_port?(port)
-      $tcp_server_controls.find_all{ |tcp_server_control| tcp_server_control.has_port?(port) }.size != 0
-    end
 end

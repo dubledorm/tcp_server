@@ -84,7 +84,7 @@ module TcpServer
     end
 
     def pair_alive?
-      @threads[0].alive? || @threads[1].alive?
+      @threads[0]&.alive? || @threads[1]&.alive?
     end
 
     def execute(number)
