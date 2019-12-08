@@ -3,10 +3,14 @@
 module TcpServer
   # TcpServer. It reads byte from socket and sends the bytes to pair tcp_server
   class SimpleTcpServer
+
+    SIZE_OF_READ_BUFFER = 100
+
     def initialize(port, tcp_server_control)
       @port = port
       @status = 'Created'
       @tcp_server_control = tcp_server_control
+      @monitoring = Monitoring::Logger.new(port)
     end
 
     def call(mode = :smart)
@@ -37,7 +41,7 @@ module TcpServer
 
     private
 
-    attr_accessor :tcp_server_control
+    attr_accessor :tcp_server_control, :monitoring
 
     def wait_connect(server)
       @status = 'Wait connect'
@@ -55,6 +59,7 @@ module TcpServer
         one_byte = socket_read
         break if one_byte.empty?
 
+        @monitoring.write(one_byte)
         write_to_pair(one_byte)
       end
       rescue RuntimeError
@@ -63,7 +68,7 @@ module TcpServer
     end
 
     def socket_read
-      one_byte = @socket.recv(16)
+      one_byte = @socket.recv(SIZE_OF_READ_BUFFER)
       if one_byte.empty?
         Rails.logger.info('client disconnected from ' + @port.to_s)
       end
