@@ -49,9 +49,7 @@ paths:
         400:
           description: "Invalid parameters"
           schema:
-            type: "string"
-            example: "Port already in use"
-
+            $ref: "#/definitions/ErrorMessage"
   /start_pair:
     put:
       tags:
@@ -76,9 +74,13 @@ paths:
         400:
           description: "Invalid parameters"
           schema:
-            type: "string"
-            example: "Port already in use"
+            $ref: "#/definitions/ErrorMessage"
 definitions:
+  ErrorMessage:
+    type: "object"
+    properties:
+      message:
+        type: string
   Thread:
     type: "object"
     properties:
