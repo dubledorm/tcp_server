@@ -3,11 +3,12 @@
 module TcpServer
   # TcpServerControl. Class for start and stop the pair of SimpleTcpServers
   class TcpServerControl
-    def initialize(ports, mode)
+    def initialize(ports, mode, debug)
       @threads = []
       @tcp_servers = [nil, nil] # инициализируем, чтобы не делать проверок в get_pair_socket
       @ports = ports
       @mode = mode.to_sym
+      @debug = debug
     end
 
     def start
@@ -68,12 +69,12 @@ module TcpServer
 
     private
 
-    attr_accessor :mode
+    attr_accessor :mode, :debug
 
     def start_pair(ports)
       @ports = ports
       [0, 1].each do |number|
-        @tcp_servers[number] = TcpServer::SimpleTcpServer.new(@ports[number], self)
+        @tcp_servers[number] = TcpServer::SimpleTcpServer.new(@ports[number], self, debug)
       end
 
       [0, 1].each do |number|

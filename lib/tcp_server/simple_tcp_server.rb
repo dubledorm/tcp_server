@@ -6,11 +6,12 @@ module TcpServer
 
     SIZE_OF_READ_BUFFER = 100
 
-    def initialize(port, tcp_server_control)
+    def initialize(port, tcp_server_control, debug = false)
       @port = port
       @status = 'Created'
       @tcp_server_control = tcp_server_control
       @monitoring = Monitoring::Logger.new(port)
+      @debug = debug
     end
 
     def call(mode = :smart)
@@ -41,7 +42,7 @@ module TcpServer
 
     private
 
-    attr_accessor :tcp_server_control, :monitoring
+    attr_accessor :tcp_server_control, :monitoring, :debug
 
     def wait_connect(server)
       @status = 'Wait connect'
@@ -59,7 +60,7 @@ module TcpServer
         one_byte = socket_read
         break if one_byte.empty?
 
-        @monitoring.write(one_byte)
+        @monitoring.write(one_byte) if debug
         write_to_pair(one_byte)
       end
       rescue RuntimeError

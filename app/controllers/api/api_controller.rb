@@ -19,7 +19,7 @@ class Api::ApiController < ApplicationController
     port = find_used_port(ports)
     raise ActionController::BadRequest.new("The port number #{port} already used") unless port.nil?
 
-    start_tcp_server(ports, :smart)
+    start_tcp_server(ports, :smart, true)
     render json: { message: 'Ok' }, status: 200
   end
 

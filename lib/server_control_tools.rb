@@ -13,8 +13,8 @@ module ServerControlTools
     nil
   end
 
-  def start_tcp_server(ports, mode)
-    tcp_server_control = TcpServer::TcpServerControl.new(ports.map{ |port| port.to_i}, mode)
+  def start_tcp_server(ports, mode, debug = false)
+    tcp_server_control = TcpServer::TcpServerControl.new(ports.map{ |port| port.to_i}, mode, debug)
     tcp_server_control.start
     $tcp_server_controls << tcp_server_control
   end
@@ -34,7 +34,9 @@ module ServerControlTools
         if !port.nil?
           puts("ERROR! The port number #{port} already used")
         else
-          start_tcp_server(pair[:pair], pair[:mode].nil? ? :smart : :dumb)
+          start_tcp_server(pair[:pair],
+                           pair[:mode].nil? ? :smart : :dumb,
+                           pair[:debug].nil? ? true : false)
           puts("Started pair #{pair[:pair]}")
         end
       end
