@@ -1,3 +1,5 @@
 docker build . -t tcp_server
 docker tag tcp_server registry.infsphr.info/tcp_server:v1.1.0
 docker push registry.infsphr.info/tcp_server:v1.1.0
+
+sudo docker run --rm -it --publish 3000:3000 --publish 3001:3001 --publish 3002:3002 --env REDIS_CLOUD_URL='redis://10.50.0.192:6379' registry.infsphr.info/tcp_server:v1.1.0
