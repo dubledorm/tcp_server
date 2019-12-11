@@ -31,6 +31,7 @@ module TcpServer
     end
 
     config.after_initialize do
+      redis_init
       init_by_env_variable
     end
   end

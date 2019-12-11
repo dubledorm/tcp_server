@@ -10,7 +10,7 @@ module TcpServer
       @port = port
       @status = 'Created'
       @tcp_server_control = tcp_server_control
-      @monitoring = Monitoring::Logger.new(port)
+      @monitoring = Monitoring::RedisLogger.new
       @debug = debug
     end
 
@@ -47,7 +47,9 @@ module TcpServer
     def wait_connect(server)
       @status = 'Wait connect'
       Rails.logger.info('wait_connect ' + @port.to_s)
+      @monitoring.write(port, 'waiting for connect', :text) if debug
       socket = server.accept
+      @monitoring.write(port, 'connected', :text) if debug
       Rails.logger.info('client connected on ' + @port.to_s)
       socket
     end
@@ -60,7 +62,7 @@ module TcpServer
         one_byte = socket_read
         break if one_byte.empty?
 
-        @monitoring.write(one_byte) if debug
+        @monitoring.write(port, one_byte) if debug
         write_to_pair(one_byte)
       end
       rescue RuntimeError
@@ -71,6 +73,7 @@ module TcpServer
     def socket_read
       one_byte = @socket.recv(SIZE_OF_READ_BUFFER)
       if one_byte.empty?
+        @monitoring.write(port, 'disconnected', :text) if debug
         Rails.logger.info('client disconnected from ' + @port.to_s)
       end
       one_byte

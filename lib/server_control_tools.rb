@@ -4,6 +4,10 @@ module ServerControlTools
     $tcp_server_controls.find_all{ |tcp_server_control| tcp_server_control.has_pair?(port1.to_i, port2.to_i)}.first
   end
 
+  def find_pair_by_port(port)
+    $tcp_server_controls.find_all{ |tcp_server_control| tcp_server_control.has_port?(port.to_i)}.first
+  end
+
   def find_used_port(ports)
     [0, 1].each do |i|
       if use_port?(ports[i].to_i)
@@ -20,7 +24,7 @@ module ServerControlTools
   end
 
   def use_port?(port)
-    $tcp_server_controls.find_all{ |tcp_server_control| tcp_server_control.has_port?(port) }.size != 0
+    $tcp_server_controls.find_all{ |tcp_server_control| tcp_server_control.has_port?(port.to_i) }.size != 0
   end
 
   def init_by_env_variable
