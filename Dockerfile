@@ -6,6 +6,8 @@ RUN apk add --update tzdata && \
     cp /usr/share/zoneinfo/Europe/Moscow /etc/localtime && \
     echo "Europe/Moscow" > /etc/timezone
 
+# Установка клиента redis
+RUN apk add --update redis
 
 # Установка в контейнер runtime-зависимостей приложения
 RUN apk add --update --virtual runtime-deps nodejs libffi-dev readline

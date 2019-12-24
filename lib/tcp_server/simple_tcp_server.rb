@@ -4,7 +4,7 @@ module TcpServer
   # TcpServer. It reads byte from socket and sends the bytes to pair tcp_server
   class SimpleTcpServer
 
-    SIZE_OF_READ_BUFFER = 100
+    SIZE_OF_READ_BUFFER = 10024
 
     def initialize(port, tcp_server_control, debug = false)
       @port = port
@@ -81,7 +81,6 @@ module TcpServer
 
     def write_to_pair(one_byte)
       @tcp_server_control.get_pair_socket(@port)&.write(one_byte)
-      Rails.logger.info("->#{one_byte}")
     end
 
     def server_close(server)
