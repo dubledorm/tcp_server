@@ -17,4 +17,5 @@
 
 ## Пример настройки переменных окружения
 PAIRS_OF_SERVERS = '[{"pair": [3001, 3002], "mode": "dumb"}, {"pair": [3003, 3004]}]'
+
 REDIS_CLOUD_URL = 'redis://localhost:6379'
