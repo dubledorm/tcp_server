@@ -1,24 +1,10 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Простой микросервис для приёма и ретрансляции tcp соединений.
+Функциональные возможности:
 
-Things you may want to cover:
+* Управление о HTTP пулом пар входных и выходных портов
 
-* Ruby version
+* Метод HealthCheck (HTTP) для получения оперативной информации о состоянии приложения и пар соединений
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+* Мониторинг - отправка всего трафика, проходящего через порт в канал Redis
